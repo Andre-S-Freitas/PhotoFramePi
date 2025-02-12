@@ -1,0 +1,19 @@
+{% for photo in photos %}
+<div id="photo-{{photo.id}}" class="col photo-container">
+    <div class="card overflow-hidden text-end {{'border-light' if photo.active  }} card-outline">
+        <img src="{{ url_for('static', filename='thumbnails/' + photo.id)}}" class="card-img-top card-photo" alt="...">
+        <div class="card-footer">
+            <div>
+                <small class="text-body-secondary">{{photo.resolution.x}} x {{photo.resolution.y}}</small>
+            </div>
+            <div>
+                <small class="text-body-secondary">{{photo.taken_date.day}}/{{photo.taken_date.month}}/{{photo.taken_date.year}}</small>
+            </div>
+        </div>
+        <div class="p-2 d-flex justify-content-between">
+            <button type="button" class="btn btn-outline-{{'secondary' if photo.active else 'primary'}} btn-sm activate-button" {% if photo.active %} disabled {% endif %} onclick='setPhoto({{photo.id|tojson}})'> Activate </button>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick='removePhoto({{photo.id|tojson}})'>Remove</button>
+        </div>
+    </div>
+</div>
+{% endfor %}

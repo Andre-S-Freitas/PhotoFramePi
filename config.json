@@ -1,0 +1,9 @@
+{
+    "name": "Photo Frame Pi",
+    "orientation": "landscape",
+    "resolution": [
+        800,
+        480
+    ],
+    "interval": 1
+}

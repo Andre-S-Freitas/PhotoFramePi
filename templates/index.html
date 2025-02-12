@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/main.css') }}">
+    <script src="{{ url_for('static', filename='scripts/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/script.js') }}" defer></script>
+    <title>{{config.name}}</title>
+</head>
+
+<body>
+    <div class="container">
+
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">{{config.name}}</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <form id="config-form" class="my-4">
+            <h3> Settings</h3>
+            <div class="mb-3 row">
+                <label for="intervalInput" class="col-sm-2 col-form-label">Interval</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="interval" id="intervalInput" aria-describedby="intervalHelp"
+                        value="{{config.refresh_interval}}">
+                    <div id="intervalHelp" class="form-text">Number in seconds for the frame to refresh.</div>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="intervalInput" class="col-sm-2 col-form-label">Orientation</label>
+                <div class="col-sm-10">
+                    <select id="orientationInput" name="orientation" class="form-select" aria-label="Orientation">
+                        <option value=""></option>
+                        <option {% if config.orientation == 'portrait' %} selected {% endif %} value="portrait">Portrait</option>
+                        <option {% if config.orientation == 'landscape' %} selected {% endif %} value="landscape">Landscape</option>
+                    </select>
+                    <div id="orientationHelp" class="form-text"> Orientation of the photos. </div>
+                </div>
+            </div>
+            <div class="offset-sm-2 col-sm-10">
+                <button id="submit-config" type="submit" class="btn btn-primary mb-3">Save</button>
+            </div>
+        </form>
+
+        <hr>
+
+        <div class="hstack justify-content-between mb-3">
+            <h3><span id="photo-count">{{photos|length}}</span> photos</h3>
+            <button type="button" class="btn btn-outline-primary" id="upload-button">Upload</button>
+            <input type="file" class="form-control d-none" id="file-input" multiple>
+        </div>
+
+        <div id="upload-progress" class="alert alert-secondary alert-dismissible d-none" role="alert">
+            <button id="dismiss-progress" type="button" class="btn-close d-none" data-bs-dismiss="alert"
+                aria-label="Close"></button>
+            <div>
+                <p id="alert-title">Uploading photos...</p>
+                <div class="progress-stacked">
+                    <div id="progress-bar" class="progress" role="progressbar" aria-label="uploaded photos"
+                        aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar"></div>
+                    </div>
+                    <div id="progress-bar-error" class="progress" role="progressbar" aria-label="failed photo"
+                        aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar bg-danger"></div>
+                    </div>
+                </div>
+                <hr>
+                <small id="alert-message"> Do not close this window until the upload is finished. </small>
+            </div>
+        </div>
+
+        <div id="photo-list"
+            class="row justify-content-center row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4 mb-4">
+            {% include 'partial/photo-list.html' %}
+        </div>
+    </div>
+</body>
+
+</html>
