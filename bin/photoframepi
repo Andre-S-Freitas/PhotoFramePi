@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+APP_NAME="photoframepi"
+APP_DIR=/usr/local/$APP_NAME
+VENV_DIR="$APP_DIR/.venv"
+
+source "$VENV_DIR/bin/activate"
+
+python -u "$(realpath $APP_DIR/app.py)" "$@"
+
+deactivate
