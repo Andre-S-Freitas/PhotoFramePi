@@ -1,13 +1,11 @@
 from flask import Blueprint, current_app, jsonify, request
 import os
+from services.directories import PHOTO_DIR, THUMBNAIL_DIR
 from services.photo import create_thumbnail, extract_data, generate_id, validate_extension
 from PIL import Image, ImageOps
 
 from services.photo_list import PhotoList
 from services.scheduler import Scheduler
-
-PHOTO_DIR = 'static/photos'
-THUMBNAIL_DIR = 'static/thumbnails'
 
 photo_route = Blueprint('photo', __name__)
 
@@ -84,11 +82,13 @@ def upload_photo():
             return jsonify({"success": False, "message": "Invalid image file"}), 400
         
         file_path = os.path.join(PHOTO_DIR, photo_id)
+        os.makedirs(PHOTO_DIR, exist_ok=True)
         image.save(file_path)
         
         # save thumbnail
         thumbnail = create_thumbnail(image)
         thumbnail_path = os.path.join(THUMBNAIL_DIR, photo_id)
+        os.makedirs(THUMBNAIL_DIR, exist_ok=True)
         thumbnail.save(thumbnail_path)
 
         # extract metadata

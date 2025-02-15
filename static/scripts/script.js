@@ -38,6 +38,7 @@ function setProgressBar(progress, error, step) {
 function startProgressBar() {
     uploadingProgress.classList.remove("d-none");
     progressBar.children[0].classList.add("progress-bar-striped", "progress-bar-animated");
+    alertMessage.textContent = `Do not close this window until the upload is finished.`
 }
 
 function stopProgressBar(success, error) {
@@ -60,7 +61,7 @@ async function handleConfigSubmit(event) {
 
     const data = Object.fromEntries(new FormData(configForm).entries());
 
-    if (!data.interval || data.interval <= 0 ) {
+    if (!data.interval || data.interval <= 0) {
         console.error("Interval must greater than 0");
         return;
     }
@@ -86,7 +87,7 @@ async function handleFileUpload(event) {
 
     startProgressBar();
     setProgressBar(success, error, step);
-    
+
     for (const file of files) {
         const response = await postFile(file);
         if (response.status !== 200) {
@@ -119,11 +120,11 @@ async function postFile(file) {
 }
 
 function openFileUpload() {
-   fileInput.click();
+    fileInput.click();
 }
 
 async function requestPhotoRemove(photoId) {
-    const body = {id: photoId};
+    const body = { id: photoId };
     return fetch("/remove", {
         method: "POST",
         headers: {
@@ -139,7 +140,7 @@ async function setPhoto(photoId) {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({id: photoId})
+        body: JSON.stringify({ id: photoId })
     })
 
     if (response.status !== 200) {
@@ -165,11 +166,11 @@ async function setPhoto(photoId) {
 async function removePhoto(photoId) {
     const response = await requestPhotoRemove(photoId);
 
-    if (response.status !== 200) {  
+    if (response.status !== 200) {
         console.error("Failed to remove photo", response);
         return;
     }
-        
+
     const photoContainer = document.getElementById("photo-" + photoId);
     photoContainer.remove();
 

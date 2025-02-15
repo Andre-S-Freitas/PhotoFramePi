@@ -1,7 +1,6 @@
 import json
 import threading
-
-CONFIG_FILE = 'config.json'
+from services.directories import CONFIG_FILE
 
 class Config:
 

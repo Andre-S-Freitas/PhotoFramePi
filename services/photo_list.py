@@ -1,7 +1,7 @@
 import json
 import threading
 
-PHOTO_LIST_FILE = 'photo-list.json'
+from services.directories import PHOTO_LIST_FILE
 
 class PhotoList:
     def __init__(self):

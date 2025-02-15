@@ -1,11 +1,14 @@
 import logging
 import random
 from services.config import Config
+from services.directories import FONTS_DIR, PHOTO_DIR
 from services.photo import resize_image
 from services.photo_list import PhotoList
 from PIL import Image, ImageDraw, ImageFont
+import os
 
 logger = logging.getLogger(__name__)
+
 
 class DisplayManager: 
     def __init__(self, config: Config, photo_list: PhotoList):
@@ -32,7 +35,8 @@ class DisplayManager:
                 photos = [photo for photo in photos if not photo['active']]
                 photo = random.choice(photos)
         
-        image = Image.open('static/photos/' + photo['id'])
+        photo_path = os.path.join(PHOTO_DIR, photo['id'])
+        image = Image.open(photo_path)
         return (image, photo['id'])
     
     def show_next_photo(self, photo_id):
@@ -41,7 +45,8 @@ class DisplayManager:
 
         for photo in photos:
             if photo['id'] == photo_id:
-                return (Image.open('static/photos/' + photo['id']), photo_id)
+                photo_path = os.path.join(PHOTO_DIR, photo['id'])
+                return (Image.open(photo_path), photo_id)
         return (None, None)
 
     def show_new_image(self, image, photo_id):
@@ -56,10 +61,12 @@ class DisplayManager:
         image = Image.new("P", (w, h), color="white")
         image_draw = ImageDraw.Draw(image)
         
-        title_font = ImageFont.truetype('static/fonts/Jost-SemiBold.ttf', 30)
+        title_font_path = os.path.join(FONTS_DIR, 'Jost-SemiBold.ttf')
+        title_font = ImageFont.truetype(title_font_path, 30)
         title_height = DisplayManager.get_text_height(title_font, title)
 
-        message_font = ImageFont.truetype('static/fonts/Jost.ttf', 20)
+        message_font_path = os.path.join(FONTS_DIR, 'Jost.ttf')
+        message_font = ImageFont.truetype(message_font_path, 20)
         message_line_height = DisplayManager.get_text_height(message_font, message)
 
         wrapped_lines = DisplayManager.wrap_lines(message, image_draw, message_font, w)

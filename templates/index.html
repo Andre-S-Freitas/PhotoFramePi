@@ -33,8 +33,8 @@
             <div class="mb-3 row">
                 <label for="intervalInput" class="col-sm-2 col-form-label">Interval</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" name="interval" id="intervalInput" aria-describedby="intervalHelp"
-                        value="{{config.refresh_interval}}">
+                    <input type="text" class="form-control" name="interval" id="intervalInput"
+                        aria-describedby="intervalHelp" value="{{config.interval}}">
                     <div id="intervalHelp" class="form-text">Number in seconds for the frame to refresh.</div>
                 </div>
             </div>
@@ -43,8 +43,10 @@
                 <div class="col-sm-10">
                     <select id="orientationInput" name="orientation" class="form-select" aria-label="Orientation">
                         <option value=""></option>
-                        <option {% if config.orientation == 'portrait' %} selected {% endif %} value="portrait">Portrait</option>
-                        <option {% if config.orientation == 'landscape' %} selected {% endif %} value="landscape">Landscape</option>
+                        <option {% if config.orientation=='portrait' %} selected {% endif %} value="portrait">Portrait
+                        </option>
+                        <option {% if config.orientation=='landscape' %} selected {% endif %} value="landscape">
+                            Landscape</option>
                     </select>
                     <div id="orientationHelp" class="form-text"> Orientation of the photos. </div>
                 </div>

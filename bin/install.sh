@@ -1,24 +1,26 @@
+#!/bin/bash
+
 # name
 APP_NAME="photoframepi"
 
 # directories 
-SRC_DIR=$(dirname $(readlink -f $0))
+SRC_DIR=$(dirname $(readlink -f $0))/..
 APP_DIR="/usr/local/$APP_NAME"
 VENV_DIR="$APP_DIR/.venv"
 BIN_DIR="/usr/local/bin"
 
 # requirements
-PIP_REQ="$APP_DIR/install/requirements.txt"
-APT_REQ="$APP_DIR/install/apt-requirements.txt"
+PIP_REQ="$SRC_DIR/bin/requirements.txt"
+APT_REQ="$SRC_DIR/bin/apt-requirements.txt"
 
 # service
 SERVICE_FILE="$APP_NAME.service"
-SERVICE_SOURCE="$SRC_DIR/install/$SERVICE_FILE"
+SERVICE_SOURCE="$SRC_DIR/bin/$SERVICE_FILE"
 SERVICE_TARGET="/etc/systemd/system/$SERVICE_FILE"
 
 # Ensure the script is run with sudo
 check_permissions() {
-  if [ "$EUID" -ne 0 ]; then
+  if [ $(id -u) -ne 0 ]; then
     echo_error "ERROR: Installation requires root privileges. Please run it with sudo."
     exit 1
   fi
@@ -26,7 +28,7 @@ check_permissions() {
 
 # Stop the service if it is running
 stop_service() {
-    echo "Checking if $SERVICE_FILE is running"
+    echo "Checking if $SERVICE_FILE is running:"
     if /usr/bin/systemctl is-active --quiet $SERVICE_FILE
     then
       /usr/bin/systemctl stop $SERVICE_FILE > /dev/null &
@@ -38,7 +40,7 @@ stop_service() {
 
 # Enable hardware interfaces required for the application
 enable_interfaces(){
-  echo "Enabling interfaces required for $APPNAME"
+  echo "Enabling interfaces required for $APP_NAME:"
   #enable spi
   sudo sed -i 's/^dtparam=spi=.*/dtparam=spi=on/' /boot/config.txt
   sudo sed -i 's/^#dtparam=spi=.*/dtparam=spi=on/' /boot/config.txt
@@ -56,9 +58,9 @@ enable_interfaces(){
 install_apt_dependencies() {
   if [ -f "$APT_REQ" ]; then
     xargs -a "$APT_REQ" sudo apt-get install -y > /dev/null &
-    show_loader "Installing system dependencies. "
+    show_loader "Installing system dependencies: "
   else
-    echo "ERROR: System dependencies file $APT_REQ not found!"
+    echo_error "ERROR: System dependencies file $APT_REQ not found!"
     exit 1
   fi
 }
@@ -68,29 +70,31 @@ symlink_project() {
   # Check if an existing installation is present
   echo "Installing $APP_NAME to $APP_DIR"
   if [[ -d $APP_DIR ]]; then
-    rm -rf "$APP_DIR" > /dev/null
+    rm -rf "$APP_DIR" > /dev/null &
     show_loader "\tRemoving existing installation found at $APP_DIR"
   fi
 
-  mkdir -p "$APP_DIR"
-
-  ln -sf "$SRC_DIR" "$APP_DIR"
+  ln -sf "$SRC_DIR" "$APP_DIR" > /dev/null &
   show_loader "\tCreating symlink from $SRC_DIR to $APP_DIR"
-}
-
-# Install the executable in the bin directory
-install_executable() {
-  echo "Adding executable to ${BIN_DIR}/$APP_NAME"
-  cp $SRC_DIR/install/$APP_NAME $BIN_DIR/
-  sudo chmod +x $BIN_DIR/$APP_NAME
 }
 
 # Install python dependencies
 create_venv(){
-  echo "Creating python virtual environment. "
-  python3 -m venv "$VENV_DIR"
+  echo "Creating python virtual environment: "
+  python3 -m venv "$VENV_DIR" > /dev/null & 
+  show_loader "\tGenerating virtual environment. "
   $VENV_DIR/bin/python -m pip install -r $PIP_REQ > /dev/null &
   show_loader "\tInstalling python dependencies. "
+}
+
+
+# Install the executable in the bin directory
+install_executable() {
+  echo "Adding executable to ${BIN_DIR}/$APP_NAME:"
+  cp $SRC_DIR/bin/$APP_NAME $BIN_DIR/ > /dev/null & 
+  show_loader "\tInstalling executable file. "
+  sudo chmod +x $BIN_DIR/$APP_NAME > /dev/null & 
+  show_loader "\tAjusting premissions. "
 }
 
 # Install the systemd service
@@ -167,7 +171,6 @@ show_loader() {
 bold=$(tput bold)
 normal=$(tput sgr0)
 red=$(tput setaf 1)
-green=$(tput setaf 2)
 
 echo_success() {
   echo -e "$1 [\e[32m\xE2\x9C\x94\e[0m]"
@@ -196,5 +199,6 @@ enable_interfaces
 install_apt_dependencies
 symlink_project
 create_venv
+install_executable
 install_app_service
 ask_for_reboot
